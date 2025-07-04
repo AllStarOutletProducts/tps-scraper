@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import os, requests, re
 from bs4 import BeautifulSoup
 from urllib.parse import quote
+from urllib.parse import urljoin
 
 app = Flask(__name__)
 SCRAPE_DO_API_KEY = os.getenv('SCRAPE_DO_API_KEY')
@@ -39,11 +40,24 @@ def find_email():
     results_soup = BeautifulSoup(results_html, 'html.parser')
 
     # ─── Find the “View Details” link ─────────────────────────────
-    detail_a = results_soup.find('a', href=re.compile(r"^/find/person/"))
-    if not detail_a:
-        return jsonify(error="No detail page found"), 404
+    # 1) Find the exact anchor whose text is “View Details”
+    detail_link = results_soup.find(
+        'a',
+        string=lambda t: t and 'View Details' in t
+    )
+    if not detail_link:
+        return jsonify(error="No detail link found"), 404
 
-    detail_url = "https://www.truepeoplesearch.com" + detail_a['href']
+    # 2) href now contains BOTH the path AND the ?name=…&citystatezip=… 
+    raw_href = detail_link['href']
+
+    # 3) Build the full URL
+    detail_url = urljoin("https://www.truepeoplesearch.com", raw_href)
+
+    # e.g. detail_url == 
+    # "https://www.truepeoplesearch.com/find/person/px22luu44u428rn224ul9?"
+    #    "name=Joann+Hollen&citystatezip=Georgetown%2C+KY"
+    
     enc2 = quote(detail_url, safe='')
     scrape_detail = (
       f"https://api.scrape.do"
