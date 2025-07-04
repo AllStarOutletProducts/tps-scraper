@@ -48,11 +48,15 @@ def find_email():
     if not detail_link:
         return jsonify(error="No detail link found"), 404
 
-    # 2) href now contains BOTH the path AND the ?name=…&citystatezip=… 
     raw_href = detail_link['href']
 
-    # 3) Build the full URL
+    # If the link itself has no querystring, grab the original one from results_url
+    if '?' not in raw_href:
+        query = results_url.split('?', 1)[1]  # yields "name=Joann+Hollen&citystatezip=Georgetown,%20KY"
+        raw_href = f"{raw_href}?{query}"
+
     detail_url = urljoin("https://www.truepeoplesearch.com", raw_href)
+
 
     # e.g. detail_url == 
     # "https://www.truepeoplesearch.com/find/person/px22luu44u428rn224ul9?"
