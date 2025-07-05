@@ -7,12 +7,6 @@ from urllib.parse import urljoin
 
 app = Flask(__name__)
 
-# ←────── INSERT HEALTH-CHECK HERE ───────→
-@app.route('/healthz', methods=['GET'])
-def healthz():
-    return jsonify(status='ok'), 200
-# ←──────────────────────────────────────→
-
 
 SCRAPE_DO_API_KEY = os.getenv('SCRAPE_DO_API_KEY')
 if not SCRAPE_DO_API_KEY:
@@ -90,6 +84,12 @@ def find_email():
         "query": qs,
         "emails": emails or ["not available"]
     })
+    
+# ←────── INSERT HEALTH-CHECK HERE ───────→
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify(status='ok'), 200
+# ←──────────────────────────────────────→
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
