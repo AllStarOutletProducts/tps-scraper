@@ -6,6 +6,14 @@ from urllib.parse import quote
 from urllib.parse import urljoin
 
 app = Flask(__name__)
+
+# ←────── INSERT HEALTH-CHECK HERE ───────→
+@app.route('/healthz', methods=['GET'])
+def healthz():
+    return jsonify(status='ok'), 200
+# ←──────────────────────────────────────→
+
+
 SCRAPE_DO_API_KEY = os.getenv('SCRAPE_DO_API_KEY')
 if not SCRAPE_DO_API_KEY:
     raise RuntimeError("Set SCRAPE_DO_API_KEY in your environment!")
